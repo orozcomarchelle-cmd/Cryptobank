@@ -1,0 +1,3277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoBank - Professional Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #0a0e27;
+            --secondary-dark: #151a35;
+            --tertiary-dark: #1f2749;
+            --purple-light: #a367dc;
+            --purple-bright: #8b5cf6;
+            --purple-accent: #6d28d9;
+            --green-accent: #10b981;
+            --green-dark: #059669;
+            --red-accent: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --border-color: #334155;
+            --warning-yellow: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #151a35 50%, #1f2749 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+            filter: blur(50px);
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            bottom: 0;
+            left: -150px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(40px, 40px); }
+        }
+
+        /* Loader Spinner */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            border-top: 4px solid var(--purple-bright);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Login Screen */
+        .login-container {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.98) 0%, rgba(31, 39, 73, 0.98) 100%);
+            border: 1.5px solid var(--border-color);
+            border-radius: 20px;
+            padding: 45px 35px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 50px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: inline-block;
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-bright) 100%);
+            padding: 16px;
+            border-radius: 16px;
+            line-height: 1;
+        }
+
+        .logo-text {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(100, 116, 139, 0.08);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--purple-bright);
+            background: rgba(139, 92, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-bright) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple-light);
+            border: 1.5px solid var(--purple-bright);
+        }
+
+        .btn-danger {
+            background: var(--red-accent);
+        }
+
+        .btn-success {
+            background: var(--green-accent);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider span {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.98) 0%, rgba(31, 39, 73, 0.98) 100%);
+            padding: 0 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            position: relative;
+            z-index: 2;
+        }
+
+        .links-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .link {
+            flex: 1;
+            text-align: center;
+        }
+
+        .link a {
+            color: var(--purple-light);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .link a:hover {
+            color: var(--purple-bright);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding-bottom: 90px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--purple-bright) 0%, var(--purple-accent) 100%);
+            padding: 28px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.9) 0%, rgba(31, 39, 73, 0.7) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2));
+            border: 1px solid var(--purple-bright);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--purple-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .badge.vip {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            border-color: var(--warning-yellow);
+            color: var(--warning-yellow);
+        }
+
+        .badge.vip:hover {
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin: 24px 0;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 16px;
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-color: var(--purple-bright);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .action-icon {
+            font-size: 32px;
+        }
+
+        .action-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* Crypto Market */
+        .crypto-item {
+            background: rgba(100, 116, 139, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .crypto-item:hover {
+            background: rgba(139, 92, 246, 0.12);
+            border-color: var(--purple-bright);
+            transform: translateX(4px);
+        }
+
+        .crypto-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .crypto-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .crypto-btc { background: linear-gradient(135deg, #f7931a, #f9b233); color: white; }
+        .crypto-eth { background: linear-gradient(135deg, #627eea, #748bdf); color: white; }
+        .crypto-doge { background: linear-gradient(135deg, #c1a633, #d4af37); color: white; }
+        .crypto-ltc { background: linear-gradient(135deg, #345d9d, #4a7ab5); color: white; }
+        .crypto-usdt { background: linear-gradient(135deg, #26a17b, #35c578); color: white; }
+        .crypto-xrp { background: linear-gradient(135deg, #23292f, #3d4551); color: white; }
+        .crypto-ada { background: linear-gradient(135deg, #0033ad, #1a4fb8); color: white; }
+
+        .crypto-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .crypto-info p {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .crypto-right {
+            text-align: right;
+        }
+
+        .crypto-price {
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .crypto-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 6px;
+            color: var(--green-accent);
+        }
+
+        .crypto-change.negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--red-accent);
+        }
+
+        /* Transaction List */
+        .transaction-item {
+            background: rgba(100, 116, 139, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .transaction-info h4 {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .transaction-info p {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .transaction-right {
+            text-align: right;
+        }
+
+        .transaction-amount {
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .transaction-status {
+            font-size: 10px;
+            color: var(--green-accent);
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        /* Admin Panel */
+        .admin-header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 28px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .table th {
+            background: rgba(100, 116, 139, 0.1);
+            padding: 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green-accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(100, 116, 139, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.98));
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            max-width: 500px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-item.active {
+            color: var(--purple-light);
+        }
+
+        .nav-item:hover {
+            color: var(--purple-light);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--warning-yellow);
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 12px;
+            color: var(--warning-yellow);
+            margin: 16px 0;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid var(--green-accent);
+            color: var(--green-accent);
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid var(--red-accent);
+            color: var(--red-accent);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px;
+            }
+
+            .login-container {
+                padding: 35px 25px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* VIP Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.9);
+            z-index: 1500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.95) 0%, rgba(31, 39, 73, 0.95) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .vip-level-item {
+            background: rgba(100, 116, 139, 0.08);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .vip-level-item.current {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.1));
+            border-color: var(--purple-bright);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .vip-level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .vip-level-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .vip-level-badge {
+            background: linear-gradient(135deg, var(--warning-yellow), #fbbf24);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .vip-level-current {
+            background: linear-gradient(135deg, var(--purple-light), var(--purple-bright));
+            color: white;
+        }
+
+        .vip-level-limit {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .vip-level-limit strong {
+            color: var(--green-accent);
+            font-weight: 700;
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+            border: 1px solid var(--warning-yellow);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--warning-yellow);
+            line-height: 1.7;
+        }
+
+        .info-section strong {
+            color: var(--text-primary);
+        }
+
+        .vip-upgrade-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-bright) 100%);
+            color: white;
+        }
+
+        .vip-upgrade-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .vip-upgrade-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .vip-upgrade-btn.vip-current {
+            background: linear-gradient(135deg, var(--green-accent) 0%, var(--green-dark) 100%);
+        }
+
+        .vip-upgrade-btn.vip-unlocked {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .vip-upgrade-btn.vip-locked {
+            background: linear-gradient(135deg, #64748b, #475569);
+        }
+
+        .vip-upgrade-btn.vip-insufficient {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        #captcha-display {
+            letter-spacing: 4px !important;
+            word-spacing: 8px;
+            user-select: none;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.1)) !important;
+            border: 1.5px dashed var(--purple-bright) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+</style>
+  <script type="text/javascript"> var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); (function(){ var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0]; s1.async=true; s1.src='https://embed.tawk.to/6ad675f9bce18734c7d9853e/1k5arpm0d'; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })(); 
+</script>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="screen active" id="login-screen">
+        <div class="container">
+            <div class="login-container">
+                <div class="logo">
+                    <div class="logo-icon">ð</div>
+                    <div class="logo-text">CryptoBank</div>
+                    <div class="logo-subtitle">Secure Crypto Trading Platform</div>
+                </div>
+
+                <div class="alert" id="login-alert"></div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Enter your username">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+
+                <button class="btn" onclick="loginUser()">Login</button>
+
+                <div class="divider"><span>New Here?</span></div>
+
+                <button class="btn btn-secondary" onclick="showAlert('login-alert', 'Sign-up is disabled in this demo. Accounts are created by an administrator.', 'error')">Create New Account</button>
+
+                <div class="links-row">
+                    <div class="link">
+                        <a onclick="switchScreen('forgot-password-screen')">Forgot Password?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Screen -->
+    <div class="screen" id="register-screen">
+        <div class="container">
+            <div class="login-container">
+                <div class="logo">
+                    <div class="logo-icon">ð</div>
+                    <div class="logo-text">Create Account</div>
+                    <div class="logo-subtitle">Join CryptoBank Today</div>
+                </div>
+
+                <div class="alert" id="register-alert"></div>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-fullname" placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a unique username">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" placeholder="Enter your email address">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="reg-phone" placeholder="Enter your phone number">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="reg-address" placeholder="Enter your home address">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="reg-gender">
+                        <option value="">Select your gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer-not">Prefer not to say</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Create a strong password">
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm your password">
+                </div>
+
+                <div class="form-group">
+                    <label>Verify CAPTCHA</label>
+                    <div style="background: rgba(100, 116, 139, 0.15); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; text-align: center; font-family: 'Courier New', monospace; font-weight: 700; font-size: 18px; letter-spacing: 3px; color: var(--purple-light);" id="captcha-display">LOADING</div>
+                    <input type="text" id="captcha-input" placeholder="Enter the code above" style="text-transform: uppercase;">
+                    <button type="button" class="btn btn-secondary" style="margin-top: 8px; padding: 10px;" onclick="generateCaptcha()">ð New Code</button>
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">â¹ï¸ Enter the code above to verify you're human</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Grant Keyword</label>
+                    <input type="text" id="reg-keyword" placeholder="Enter the grant keyword">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">â¹ï¸ Get $500,000 welcome grant: 1 BTC + USDT split</p>
+                </div>
+
+                <button class="btn" onclick="registerUser()">Create Account</button>
+                <button class="btn btn-secondary" onclick="switchScreen('login-screen')">Back to Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Screen -->
+    <div class="screen" id="forgot-password-screen">
+        <div class="container">
+            <div class="login-container">
+                <div class="logo">
+                    <div class="logo-text">Reset Password</div>
+                    <div class="logo-subtitle">Recover Your Account</div>
+                </div>
+
+                <div class="alert" id="forgot-alert"></div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="forgot-email" placeholder="Enter your registered email">
+                </div>
+
+                <button class="btn" onclick="resetPassword()">Send Reset Link</button>
+                <button class="btn btn-secondary" onclick="switchScreen('login-screen')">Back to Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Dashboard -->
+    <div class="screen" id="dashboard-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">Dashboard</div>
+                    <div class="header-subtitle" id="dashboard-username">@username</div>
+                </div>
+                <button class="header-btn" onclick="logoutUser()">Logout</button>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="card">
+                <div class="card-title">Total Portfolio Value</div>
+                <div class="card-value" id="user-balance">$500,000.00</div>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 8px; margin-bottom: 12px;">Bitcoin + USDT Holdings</div>
+                <span class="badge" id="user-vip-badge" onclick="showVIPModal()" style="cursor: pointer;">VIP 0</span>
+            </div>
+
+            <!-- Actions Grid -->
+            <div class="actions-grid">
+                <div class="action-btn" onclick="showLoader(); setTimeout(() => switchScreen('transfer-screen'), 600)">
+                    <div class="action-icon">ð¸</div>
+                    <div class="action-label">Transfer</div>
+                </div>
+                <div class="action-btn" onclick="showLoader(); setTimeout(() => switchScreen('deposit-screen'), 600)">
+                    <div class="action-icon">ð°</div>
+                    <div class="action-label">Deposit</div>
+                </div>
+                <div class="action-btn" onclick="showLoader(); setTimeout(() => switchScreen('withdraw-screen'), 600)">
+                    <div class="action-icon">ð¦</div>
+                    <div class="action-label">Withdraw</div>
+                </div>
+                <div class="action-btn" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                    <div class="action-icon">ð¤</div>
+                    <div class="action-label">Profile</div>
+                </div>
+            </div>
+
+            <!-- Market Overview -->
+            <div class="card" data-market="true">
+                <div class="card-title">Market Overview</div>
+                <div id="market-overview"></div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-title">Recent Transactions</div>
+                <div id="recent-transactions">
+                    <p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions yet</p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Screen -->
+    <div class="screen" id="transfer-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">Transfer</div>
+                    <div class="header-subtitle">Send funds securely</div>
+                </div>
+                <button class="header-btn" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">Back</button>
+            </div>
+
+            <div class="alert" id="transfer-alert"></div>
+
+            <div class="card">
+                <div class="card-title">Your VIP Status</div>
+                <div id="transfer-vip-status" style="margin-top: 12px;">
+                    <span class="badge" onclick="showVIPModal()" style="cursor: pointer;">Click to view levels</span>
+                </div>
+            </div>
+
+            <div class="info-box" id="transfer-info">
+                â¹ï¸ Choose transfer type: Internal (to another CryptoBank user), Bank Account (external withdrawal), or Crypto (to a wallet address)
+            </div>
+
+            <div class="card">
+                <div class="form-group">
+                    <label>Transfer Type</label>
+                    <select id="transfer-type" onchange="updateTransferType()">
+                        <option value="internal">Internal Transfer (to CryptoBank user)</option>
+                        <option value="external">External Transfer (to Bank Account)</option>
+                        <option value="crypto">Crypto Transfer (to Wallet Address)</option>
+                    </select>
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">
+                        â¢ Internal: Send to another CryptoBank account<br>
+                        â¢ External: Withdraw to your bank account (VIP 3+ required)<br>
+                        â¢ Crypto: Send coins from your holdings to a wallet address (VIP 3+ required)
+                    </p>
+                </div>
+
+                <div id="internal-transfer" class="form-group">
+                    <label>Recipient CryptoBank Username</label>
+                    <input type="text" id="recipient-username" placeholder="@username (VIP 3+ required)">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">ð± Send crypto to another CryptoBank user. Recipient must be VIP 3+</p>
+                </div>
+
+                <div id="external-transfer" class="form-group hidden">
+                    <label>Bank Account Number</label>
+                    <input type="text" id="bank-account" placeholder="XXXXXXXXXX">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">Your bank account to receive funds</p>
+                    <label style="margin-top: 14px;">Bank Name</label>
+                    <input type="text" id="bank-name" placeholder="e.g., Chase, Bank of America">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">ð¤ Withdraw to external bank account (1-3 business days)</p>
+                </div>
+
+                <div id="crypto-transfer" class="form-group hidden">
+                    <label>Coin</label>
+                    <select id="crypto-coin"></select>
+                    <label style="margin-top: 14px;">Wallet Address</label>
+                    <input type="text" id="crypto-address" placeholder="Recipient wallet address">
+                    <label style="margin-top: 14px;">Amount (coins)</label>
+                    <input type="number" id="crypto-amount" placeholder="Amount of coins to send" step="any">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 4px;">ðª Sent from your holdings. Daily limit applies to the USD value.</p>
+                </div>
+
+                <div class="form-group" id="usd-amount-group">
+                    <label>Amount (USD)</label>
+                    <input type="number" id="transfer-amount" placeholder="Enter amount in USD" step="0.01">
+                    <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px;">ð° â¼ï¸â¼ï¸CONTACT SUPPORTâ¼ï¸â¼ï¸</p>
+                </div>
+
+                <button class="btn" onclick="initiateTransfer()">Send Transfer</button>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Screen -->
+    <div class="screen" id="deposit-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">Deposit</div>
+                    <div class="header-subtitle">Add funds to account</div>
+                </div>
+                <button class="header-btn" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">Back</button>
+            </div>
+
+            <div class="alert" id="deposit-alert"></div>
+
+            <div class="card">
+                <div class="card-title">Deposit Methods</div>
+                <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: rgba(100, 116, 139, 0.08); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                        <strong style="font-size: 13px;">ð¦ Bank Transfer</strong>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Direct transfer from your bank</p>
+                    </div>
+                    <div style="background: rgba(100, 116, 139, 0.08); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                        <strong style="font-size: 13px;">â¿ Crypto Wallet</strong>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Send from your crypto wallet</p>
+                    </div>
+                    <div style="background: rgba(100, 116, 139, 0.08); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);">
+                        <strong style="font-size: 13px;">ð³ Card Payment</strong>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Instant deposit via card</p>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Amount (USDT)</label>
+                    <input type="number" id="deposit-amount" placeholder="Enter amount" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>Method</label>
+                    <select id="deposit-method">
+                        <option>Bank Transfer</option>
+                        <option>Crypto Wallet</option>
+                        <option>Card Payment</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="processDeposit()">Process Deposit</button>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Screen -->
+    <div class="screen" id="withdraw-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">Withdraw</div>
+                    <div class="header-subtitle">Cash out your funds</div>
+                </div>
+                <button class="header-btn" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">Back</button>
+            </div>
+
+            <div class="alert" id="withdraw-alert"></div>
+
+            <div class="card">
+                <div class="card-title">Withdrawal Terms</div>
+                <div style="margin-top: 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
+                    <p>â Minimum withdrawal: $100</p>
+                    <p>â Processing time: 1-3 business days</p>
+                    <p>â Funds to registered account</p>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Amount (USDT)</label>
+                    <input type="number" id="withdraw-amount" placeholder="Enter amount" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>Method</label>
+                    <select id="withdraw-method">
+                        <option>Bank Transfer</option>
+                        <option>Crypto Wallet</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="processWithdraw()">Request Withdrawal</button>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div class="screen" id="profile-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">Profile</div>
+                    <div class="header-subtitle">Account details</div>
+                </div>
+                <button class="header-btn" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">Back</button>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--purple-light), var(--purple-bright)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800;" id="profile-avatar">U</div>
+                    <div>
+                        <div style="font-size: 16px; font-weight: 800;" id="profile-name">User Name</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);" id="profile-email">user@email.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Account Information</div>
+                <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Username</div>
+                        <div style="font-size: 13px; font-weight: 600;" id="profile-username">username</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Phone</div>
+                        <div style="font-size: 13px; font-weight: 600;" id="profile-phone">--</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Address</div>
+                        <div style="font-size: 13px; font-weight: 600;" id="profile-address">--</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Gender</div>
+                        <div style="font-size: 13px; font-weight: 600;" id="profile-gender">--</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">VIP Level</div>
+                        <div>
+                            <span class="badge vip" id="profile-vip" onclick="showVIPModal()" style="cursor: pointer;">VIP 0</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Balance</div>
+                        <div style="font-size: 16px; font-weight: 800;" id="profile-balance">$0.00</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase;">Member Since</div>
+                        <div style="font-size: 13px;" id="profile-joined">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="profile-holdings-card" style="display: none;">
+                <div class="card-title">Your Holdings</div>
+                <div id="profile-holdings-display" style="margin-top: 12px;"></div>
+            </div>
+
+            <button class="btn btn-danger" onclick="logoutUser()">Logout</button>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Screen -->
+    <div class="screen" id="history-screen">
+        <div class="container dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-title">History</div>
+                    <div class="header-subtitle">Transaction records</div>
+                </div>
+                <button class="header-btn" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">Back</button>
+            </div>
+
+            <div class="card">
+                <div id="transaction-history">
+                    <p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions yet</p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('dashboard-screen'), 600)">
+                <div class="nav-icon">ð </div>
+                <div>Home</div>
+            </div>
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('history-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>History</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('profile-screen'), 600)">
+                <div class="nav-icon">ð¤</div>
+                <div>Profile</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="screen" id="admin-screen">
+        <div class="container dashboard">
+            <div class="admin-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="header-title">Admin Panel</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.8);">System Management</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="header-btn" style="background: rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.5);" onclick="exportReport()">ð Export Report</button>
+                        <button class="header-btn" style="background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.3);" onclick="logoutUser()">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="admin-total-users">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Balance</div>
+                    <div class="stat-value" id="admin-total-balance">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">VIP Users</div>
+                    <div class="stat-value" id="admin-vip-users">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Transactions</div>
+                    <div class="stat-value" id="admin-total-transactions">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">User Directory</div>
+                <div style="overflow-x: auto; margin-top: 14px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Balance</th>
+                                <th>VIP</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-table">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-secondary);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Recent Transactions</div>
+                <div id="admin-transactions-list" style="margin-top: 14px;">
+                    <p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions</p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('admin-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>Dashboard</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-users-screen'), 600)">
+                <div class="nav-icon">ð¥</div>
+                <div>Users</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-transactions-screen'), 600)">
+                <div class="nav-icon">ð³</div>
+                <div>Transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Users Screen -->
+    <div class="screen" id="admin-users-screen">
+        <div class="container dashboard">
+            <div class="admin-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="header-title">User Management</div>
+                    <button class="header-btn" style="background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.3);" onclick="showLoader(); setTimeout(() => switchScreen('admin-screen'), 600)">Back</button>
+                </div>
+            </div>
+
+            <button class="btn" style="margin-bottom: 16px;" onclick="openAddUserModal()">+ Add User</button>
+
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>VIP</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-full-table">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-secondary);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>Dashboard</div>
+            </div>
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('admin-users-screen'), 600)">
+                <div class="nav-icon">ð¥</div>
+                <div>Users</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-transactions-screen'), 600)">
+                <div class="nav-icon">ð³</div>
+                <div>Transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Transactions Screen -->
+    <div class="screen" id="admin-transactions-screen">
+        <div class="container dashboard">
+            <div class="admin-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="header-title">Transaction Log</div>
+                    <button class="header-btn" style="background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.3);" onclick="showLoader(); setTimeout(() => switchScreen('admin-screen'), 600)">Back</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div id="admin-all-transactions">
+                    <p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions</p>
+                </div>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-screen'), 600)">
+                <div class="nav-icon">ð</div>
+                <div>Dashboard</div>
+            </div>
+            <div class="nav-item" onclick="showLoader(); setTimeout(() => switchScreen('admin-users-screen'), 600)">
+                <div class="nav-icon">ð¥</div>
+                <div>Users</div>
+            </div>
+            <div class="nav-item active" onclick="showLoader(); setTimeout(() => switchScreen('admin-transactions-screen'), 600)">
+                <div class="nav-icon">ð³</div>
+                <div>Transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <div class="modal-title">Add User</div>
+                <button class="modal-close" onclick="closeAddUserModal()">â</button>
+            </div>
+
+            <div class="alert" id="add-user-alert"></div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="add-fullname" placeholder="Full name">
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="add-username" placeholder="Username (min 3 characters)">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="text" id="add-password" placeholder="Password (min 6 characters)">
+            </div>
+            <div class="form-group">
+                <label>Email (optional)</label>
+                <input type="email" id="add-email" placeholder="Email address">
+            </div>
+            <div class="form-group">
+                <label>VIP Level</label>
+                <input type="number" id="add-vip" min="0" max="6" value="0" placeholder="0-6">
+            </div>
+
+            <button class="btn" onclick="saveNewUser()">Create User</button>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="edit-user-modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <div class="modal-title">Edit User Account</div>
+                <button class="modal-close" onclick="closeEditUserModal()">â</button>
+            </div>
+
+            <div class="alert" id="edit-user-alert"></div>
+
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="edit-fullname" placeholder="Full name">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-email" placeholder="Email address">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="edit-phone" placeholder="Phone number">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="edit-address" placeholder="Address">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="edit-gender">
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer-not">Prefer not to say</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>VIP Level</label>
+                    <input type="number" id="edit-vip" min="0" max="6" placeholder="0-6">
+                </div>
+
+                <div class="form-group">
+                    <label>Cash Balance</label>
+                    <input type="number" id="edit-balance" placeholder="Balance amount" step="0.01">
+                    <button type="button" class="btn btn-secondary" style="margin-top: 8px;" onclick="updateUserBalance()">Update Balance</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Account Status</label>
+                    <select id="edit-status">
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="locked">Locked</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn" onclick="saveUserChanges()" style="flex: 1;">Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditUserModal()" style="flex: 1;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approve Transaction Modal -->
+    <div class="modal" id="approve-transaction-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <div class="modal-title">Approve Transaction</div>
+                <button class="modal-close" onclick="closeApproveModal()">â</button>
+            </div>
+
+            <div id="transaction-details" style="background: rgba(100, 116, 139, 0.1); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin: 16px 0;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="approveTransaction()" style="flex: 1;">â Approve</button>
+                <button class="btn btn-danger" onclick="rejectTransaction()" style="flex: 1;">â Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP Details Modal -->
+    <div class="modal" id="vip-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">VIP Levels</div>
+                <button class="modal-close" onclick="closeVIPModal()">â</button>
+            </div>
+
+            <div id="vip-levels-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="info-section">
+                <strong>ð¡ How to Upgrade:</strong><br>
+                Contact our support team or meet the volume requirements for your next VIP level. Higher VIP levels unlock bigger transfer limits!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GRANT_KEYWORD = 'GRANT2957';
+        const NEW_USER_GRANT = 500000;
+
+        const VIP_LEVELS = [
+            { level: 0, name: 'Standard', limit: 0, color: '#64748b', requirement: 'Free account', upgradePrice: 0 },
+            { level: 1, name: 'VIP 1', limit: 10000, color: '#8b5cf6', requirement: '$300.00 to upgrade', upgradePrice: 300 },
+            { level: 2, name: 'VIP 2', limit: 20000, color: '#a367dc', requirement: '$600.00 to upgrade', upgradePrice: 600 },
+            { level: 3, name: 'VIP 3', limit: 45000, color: '#f59e0b', requirement: '$900.00 to upgrade', upgradePrice: 900 },
+            { level: 4, name: 'VIP 4', limit: 100000, color: '#10b981', requirement: '$1,200.00 to upgrade', upgradePrice: 1200 },
+            { level: 5, name: 'VIP 5', limit: 120000, color: '#06b6d4', requirement: '$1,500.00 to upgrade', upgradePrice: 1500 },
+            { level: 6, name: 'VIP 6', limit: 500000, color: '#ec4899', requirement: '$1,800.00 to upgrade', upgradePrice: 1800 }
+        ];
+
+        const CRYPTO_DATA = [
+            { symbol: 'BTC', name: 'Bitcoin', price: 63031.66, change: 0.5, icon: 'â¿', class: 'crypto-btc' },
+            { symbol: 'ETH', name: 'Ethereum', price: 1880.7, change: -0.3, icon: 'Î', class: 'crypto-eth' },
+            { symbol: 'USDT', name: 'Tether', price: 1.0, change: 0, icon: 'â®', class: 'crypto-usdt' },
+            { symbol: 'DOGE', name: 'Dogecoin', price: 0.069815, change: 0.05, icon: 'Ã', class: 'crypto-doge' },
+            { symbol: 'LTC', name: 'Litecoin', price: 44.18, change: -0.18, icon: 'Å', class: 'crypto-ltc' },
+            { symbol: 'XRP', name: 'Ripple', price: 2.45, change: 1.2, icon: 'X', class: 'crypto-xrp' },
+            { symbol: 'ADA', name: 'Cardano', price: 0.98, change: 0.8, icon: 'A', class: 'crypto-ada' }
+        ];
+
+        const DB = {
+            init() {
+                // Reset any data from earlier versions of the demo
+                if (localStorage.getItem('cryptobank_demo_version') !== '7') {
+                    localStorage.removeItem('cryptobank_users');
+                    localStorage.removeItem('cryptobank_transactions');
+                    localStorage.setItem('cryptobank_demo_version', '7');
+                }
+
+                if (!localStorage.getItem('cryptobank_users')) {
+                    const defaultUsers = {
+                        'marysmith': {
+                            id: 'user_1',
+                            username: 'marysmith',
+                            password: 'demo1286',
+                            fullname: 'Mary Smith',
+                            email: 'mary.smith@example.com',
+                            phone: '--',
+                            address: '',
+                            gender: 'female',
+                            balance: 482701.68,
+                            vipLevel: 0,
+                            joined: new Date().toISOString(),
+                            status: 'active',
+                            isAdmin: false,
+                            holdings: { BTC: 2, ETH: 25, USDT: 50000, DOGE: 100000, LTC: 200, XRP: 20000, ADA: 30000 }
+                        },
+                        'admin': {
+                            id: 'admin_1',
+                            username: 'admin',
+                            password: 'SecureAdmin@2024',
+                            fullname: 'Administrator',
+                            email: 'admin@example.com',
+                            phone: '--',
+                            address: '',
+                            gender: 'other',
+                            balance: 0,
+                            vipLevel: 0,
+                            joined: new Date('2023-01-01').toISOString(),
+                            status: 'active',
+                            isAdmin: true,
+                            holdings: { BTC: 0, ETH: 0, USDT: 0, DOGE: 0, LTC: 0, XRP: 0, ADA: 0 }
+                        }
+                    };
+                    localStorage.setItem('cryptobank_users', JSON.stringify(defaultUsers));
+                }
+
+                if (!localStorage.getItem('cryptobank_transactions')) {
+                    const daysAgo = d => new Date(Date.now() - d * 86400000).toISOString();
+                    const seed = [
+                        { type: 'deposit',       description: 'Deposit via Bank Transfer', amount: 400000, status: 'Completed', days: 60 },
+                        { type: 'vip_upgrade',   description: 'Account Service Fee',   amount: 150,    status: 'Completed', days: 58 },
+                        { type: 'vip_upgrade',   description: 'Account Service Fee',   amount: 300,    status: 'Completed', days: 45 },
+                        { type: 'deposit',       description: 'Deposit via Crypto Wallet', amount: 250000, status: 'Completed', days: 40 },
+                        { type: 'vip_upgrade',   description: 'Account Service Fee',   amount: 500,    status: 'Completed', days: 33 },
+                        { type: 'withdrawal',    description: 'External Transfer to Chase', amount: 29050, status: 'Completed', days: 21 },
+                        { type: 'deposit',       description: 'Deposit via Bank Transfer', amount: 200000, status: 'Completed', days: 14 },
+                        { type: 'transfer_sent', description: 'Transfer to admin',          amount: 20000, status: 'Completed', days: 7 },
+                        { type: 'deposit',       description: 'Deposit via Bank Transfer', amount: 10000,  status: 'Pending',   days: 1 }
+                    ].map((t, i) => ({
+                        id: 'txn_seed_' + (i + 1),
+                        username: 'marysmith',
+                        type: t.type,
+                        description: t.description,
+                        amount: t.amount,
+                        status: t.status,
+                        timestamp: daysAgo(t.days)
+                    }));
+                    localStorage.setItem('cryptobank_transactions', JSON.stringify(seed));
+                }
+            },
+
+            getUsers() {
+                return JSON.parse(localStorage.getItem('cryptobank_users')) || {};
+            },
+
+            saveUsers(users) {
+                localStorage.setItem('cryptobank_users', JSON.stringify(users));
+            },
+
+            getTransactions() {
+                return JSON.parse(localStorage.getItem('cryptobank_transactions')) || [];
+            },
+
+            saveTransactions(transactions) {
+                localStorage.setItem('cryptobank_transactions', JSON.stringify(transactions));
+            },
+
+            getUserByUsername(username) {
+                const users = this.getUsers();
+                return users[username];
+            },
+
+            createUser(username, password, fullname, email, vipLevel) {
+                try {
+                    const users = this.getUsers();
+                    username = username.toLowerCase();
+                    if (users[username]) return null;
+
+                    const newUser = {
+                        id: 'user_' + Date.now(),
+                        username: username,
+                        password: password,
+                        fullname: fullname,
+                        email: email || '--',
+                        phone: '--',
+                        address: '',
+                        gender: '',
+                        balance: 0,
+                        vipLevel: vipLevel || 0,
+                        joined: new Date().toISOString(),
+                        status: 'active',
+                        isAdmin: false,
+                        holdings: { BTC: 0, ETH: 0, USDT: 0, DOGE: 0, LTC: 0, XRP: 0, ADA: 0 }
+                    };
+
+                    users[username] = newUser;
+                    this.saveUsers(users);
+                    return newUser;
+                } catch (error) {
+                    console.error('Error creating user:', error);
+                    return null;
+                }
+            },
+
+            updateUserBalance(username, amount) {
+                const users = this.getUsers();
+                if (users[username]) {
+                    users[username].balance = Math.max(0, users[username].balance + amount);
+                    this.saveUsers(users);
+                    return users[username].balance;
+                }
+                return null;
+            },
+
+            addTransaction(transaction) {
+                const transactions = this.getTransactions();
+                transactions.push({
+                    ...transaction,
+                    id: 'txn_' + Date.now(),
+                    timestamp: new Date().toISOString()
+                });
+                this.saveTransactions(transactions);
+            }
+        };
+
+        DB.init();
+
+        let currentUser = null;
+        let loaderTimeout = null;
+        let currentCaptcha = '';
+
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let captcha = '';
+            for (let i = 0; i < 6; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            currentCaptcha = captcha;
+            document.getElementById('captcha-display').textContent = captcha;
+            document.getElementById('captcha-input').value = '';
+        }
+
+        function showLoader() {
+            document.getElementById('loader').classList.add('active');
+            // Auto hide loader after 3 seconds max
+            clearTimeout(loaderTimeout);
+            loaderTimeout = setTimeout(() => {
+                hideLoader();
+            }, 3000);
+        }
+
+        function hideLoader() {
+            clearTimeout(loaderTimeout);
+            document.getElementById('loader').classList.remove('active');
+        }
+
+        function showVIPModal() {
+            if (!currentUser) return;
+            
+            const levelsList = document.getElementById('vip-levels-list');
+            levelsList.innerHTML = VIP_LEVELS.map(vip => {
+                const isCurrent = currentUser.vipLevel === vip.level;
+                const canUpgrade = vip.level === currentUser.vipLevel + 1;
+                const isUpgraded = vip.level < currentUser.vipLevel;
+                const hasEnoughBalance = currentUser.balance >= vip.upgradePrice;
+                
+                let actionButton = '';
+                if (isCurrent) {
+                    actionButton = '<button class="vip-upgrade-btn vip-current" disabled>â ACTIVE</button>';
+                } else if (isUpgraded) {
+                    actionButton = '<button class="vip-upgrade-btn vip-unlocked" disabled>â UNLOCKED</button>';
+                } else if (canUpgrade) {
+                    if (hasEnoughBalance) {
+                        actionButton = `<button class="vip-upgrade-btn" onclick="upgradeVIP(${vip.level}, ${vip.upgradePrice})">UPGRADE - $${formatAmount(vip.upgradePrice)}</button>`;
+                    } else {
+                        actionButton = `<button class="vip-upgrade-btn vip-insufficient" disabled>INSUFFICIENT BALANCE</button>`;
+                    }
+                } else {
+                    actionButton = '<button class="vip-upgrade-btn vip-locked" disabled>LOCKED</button>';
+                }
+                
+                return `
+                    <div class="vip-level-item ${isCurrent ? 'current' : ''}">
+                        <div class="vip-level-header">
+                            <div class="vip-level-name">${vip.name}</div>
+                            ${isCurrent ? '<div class="vip-level-badge vip-level-current">YOUR LEVEL</div>' : '<div class="vip-level-badge">Level ' + vip.level + '</div>'}
+                        </div>
+                        <div class="vip-level-limit">
+                            <strong>Transfer Limit:</strong> $${formatAmount(vip.limit)}/day<br>
+                            <strong>Requirement:</strong> ${vip.requirement}
+                        </div>
+                        <div style="margin-top: 12px;">
+                            ${actionButton}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('vip-modal').classList.add('active');
+        }
+
+        function upgradeVIP(nextLevel, price) {
+            if (currentUser.balance < price) {
+                alert('â Insufficient balance to upgrade');
+                return;
+            }
+
+            const confirmUpgrade = confirm(`Upgrade to VIP ${nextLevel}?\n\nCost: $${formatAmount(price)}\nNew Transfer Limit: $${formatAmount(VIP_LEVELS[nextLevel].limit)}/day\n\nYour new balance: $${formatAmount(currentUser.balance - price)}`);
+            
+            if (!confirmUpgrade) return;
+
+            showLoader();
+            setTimeout(() => {
+                // Deduct upgrade cost
+                DB.updateUserBalance(currentUser.username, -price);
+                
+                // Update user VIP level
+                const users = DB.getUsers();
+                users[currentUser.username].vipLevel = nextLevel;
+                DB.saveUsers(users);
+                currentUser.vipLevel = nextLevel;
+                
+                // Add transaction
+                DB.addTransaction({
+                    username: currentUser.username,
+                    type: 'vip_upgrade',
+                    description: `VIP Upgrade to Level ${nextLevel}`,
+                    amount: price,
+                    status: 'Completed'
+                });
+
+                hideLoader();
+                alert(`â Congratulations! You are now VIP ${nextLevel}!\n\nNew Transfer Limit: $${formatAmount(VIP_LEVELS[nextLevel].limit)}/day`);
+                showVIPModal();
+                loadUserDashboard();
+            }, 600);
+        }
+
+        function closeVIPModal() {
+            document.getElementById('vip-modal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const vipModal = document.getElementById('vip-modal');
+            if (event.target === vipModal) {
+                closeVIPModal();
+            }
+
+            const editModal = document.getElementById('edit-user-modal');
+            if (event.target === editModal) {
+                closeEditUserModal();
+            }
+
+            const approveModal = document.getElementById('approve-transaction-modal');
+            if (event.target === approveModal) {
+                closeApproveModal();
+            }
+        });
+
+        // Admin functions
+        let editingUsername = null;
+        let editingTransactionId = null;
+
+        function openAddUserModal() {
+            ['add-fullname','add-username','add-password','add-email'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('add-vip').value = 0;
+            document.getElementById('add-user-modal').classList.add('active');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('add-user-modal').classList.remove('active');
+        }
+
+        function saveNewUser() {
+            if (!currentUser || !currentUser.isAdmin) return;
+
+            const fullname = document.getElementById('add-fullname').value.trim();
+            const username = document.getElementById('add-username').value.trim().toLowerCase();
+            const password = document.getElementById('add-password').value;
+            const email = document.getElementById('add-email').value.trim();
+            const vip = parseInt(document.getElementById('add-vip').value) || 0;
+
+            if (!fullname || !username || !password) {
+                showAlert('add-user-alert', 'â Full name, username and password are required', 'error');
+                return;
+            }
+            if (username.length < 3) {
+                showAlert('add-user-alert', 'â Username must be at least 3 characters', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showAlert('add-user-alert', 'â Password must be at least 6 characters', 'error');
+                return;
+            }
+            if (vip < 0 || vip > 6) {
+                showAlert('add-user-alert', 'â VIP level must be 0-6', 'error');
+                return;
+            }
+
+            const user = DB.createUser(username, password, fullname, email, vip);
+            if (!user) {
+                showAlert('add-user-alert', 'â Username already exists', 'error');
+                return;
+            }
+
+            showAlert('add-user-alert', `â User ${username} created`, 'success');
+            setTimeout(() => {
+                closeAddUserModal();
+                loadAdminUsers();
+                loadAdminDashboard();
+            }, 1000);
+        }
+
+        function openEditUserModal(username) {
+            const users = DB.getUsers();
+            const user = users[username];
+            
+            if (!user) {
+                alert('User not found');
+                return;
+            }
+
+            editingUsername = username;
+            document.getElementById('edit-fullname').value = user.fullname || '';
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-phone').value = user.phone || '';
+            document.getElementById('edit-address').value = user.address || '';
+            document.getElementById('edit-gender').value = user.gender || '';
+            document.getElementById('edit-vip').value = user.vipLevel || 0;
+            document.getElementById('edit-balance').value = user.balance || 0;
+            document.getElementById('edit-status').value = user.status || 'active';
+            
+            document.getElementById('edit-user-modal').classList.add('active');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('edit-user-modal').classList.remove('active');
+            editingUsername = null;
+        }
+
+        function saveUserChanges() {
+            if (!editingUsername) return;
+
+            const users = DB.getUsers();
+            const user = users[editingUsername];
+
+            user.fullname = document.getElementById('edit-fullname').value || user.fullname;
+            user.email = document.getElementById('edit-email').value || user.email;
+            user.phone = document.getElementById('edit-phone').value || user.phone;
+            user.address = document.getElementById('edit-address').value || user.address;
+            user.gender = document.getElementById('edit-gender').value || user.gender;
+            user.vipLevel = parseInt(document.getElementById('edit-vip').value) || 0;
+            user.balance = parseFloat(document.getElementById('edit-balance').value) || 0;
+            user.status = document.getElementById('edit-status').value || 'active';
+
+            DB.saveUsers(users);
+            
+            showAlert('edit-user-alert', 'â User account updated successfully!', 'success');
+            setTimeout(() => {
+                closeEditUserModal();
+                loadAdminUsers();
+                loadAdminDashboard();
+            }, 1500);
+        }
+
+        function updateUserBalance() {
+            const newBalance = parseFloat(document.getElementById('edit-balance').value);
+            if (isNaN(newBalance) || newBalance < 0) {
+                showAlert('edit-user-alert', 'â Please enter a valid balance amount', 'error');
+                return;
+            }
+
+            showAlert('edit-user-alert', `â Balance updated to $${formatAmount(newBalance)}`, 'success');
+        }
+
+        function openApproveModal(transactionId) {
+            const transactions = DB.getTransactions();
+            const txn = transactions.find(t => t.id === transactionId);
+            
+            if (!txn) {
+                alert('Transaction not found');
+                return;
+            }
+
+            editingTransactionId = transactionId;
+            
+            const details = `
+                <p style="margin: 0 0 8px 0;"><strong>User:</strong> ${txn.username}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Type:</strong> ${txn.type.toUpperCase()}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Description:</strong> ${txn.description}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Amount:</strong> $${formatAmount(txn.amount)}</p>
+                <p style="margin: 0 0 8px 0;"><strong>Status:</strong> ${txn.status}</p>
+                <p style="margin: 0;"><strong>Date:</strong> ${new Date(txn.timestamp).toLocaleString()}</p>
+            `;
+            
+            document.getElementById('transaction-details').innerHTML = details;
+            document.getElementById('approve-transaction-modal').classList.add('active');
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approve-transaction-modal').classList.remove('active');
+            editingTransactionId = null;
+        }
+
+        function approveTransaction() {
+            if (!editingTransactionId) return;
+
+            const transactions = DB.getTransactions();
+            const txn = transactions.find(t => t.id === editingTransactionId);
+            
+            if (txn && txn.status === 'Pending') {
+                txn.status = 'Completed';
+                DB.saveTransactions(transactions);
+                alert(`â Transaction approved for ${txn.username}`);
+                closeApproveModal();
+                loadAdminTransactions();
+            }
+        }
+
+        function rejectTransaction() {
+            if (!editingTransactionId) return;
+
+            const transactions = DB.getTransactions();
+            const txn = transactions.find(t => t.id === editingTransactionId);
+            
+            if (txn && txn.status === 'Pending') {
+                txn.status = 'Rejected';
+                DB.saveTransactions(transactions);
+                alert(`â Transaction rejected for ${txn.username}`);
+                closeApproveModal();
+                loadAdminTransactions();
+            }
+        }
+
+        function exportReport() {
+            const users = DB.getUsers();
+            const transactions = DB.getTransactions();
+
+            let csv = 'CRYPTOBANK PLATFORM REPORT\n';
+            csv += `Generated: ${new Date().toLocaleString()}\n\n`;
+
+            csv += '=== USER SUMMARY ===\n';
+            csv += `Total Users,${Object.keys(users).length}\n`;
+            csv += `Total Balance,$${Object.values(users).reduce((sum, u) => sum + (u.balance || 0), 0).toFixed(2)}\n`;
+            csv += `VIP Users,${Object.values(users).filter(u => u.vipLevel > 0).length}\n`;
+            csv += `Total Transactions,${transactions.length}\n\n`;
+
+            csv += '=== USER DIRECTORY ===\n';
+            csv += 'Username,Email,Phone,Address,VIP,Balance,Status,Joined\n';
+            Object.values(users).forEach(user => {
+                if (!user.isAdmin) {
+                    csv += `${user.username},"${user.email}","${user.phone || 'N/A'}","${user.address || 'N/A'}",${user.vipLevel},$${(user.balance || 0).toFixed(2)},${user.status},${new Date(user.joined).toLocaleDateString()}\n`;
+                }
+            });
+
+            csv += '\n=== TRANSACTION LOG ===\n';
+            csv += 'Username,Type,Description,Amount,Status,Date\n';
+            transactions.forEach(txn => {
+                csv += `${txn.username},${txn.type},"${txn.description}",$${txn.amount.toFixed(2)},${txn.status},"${new Date(txn.timestamp).toLocaleString()}"\n`;
+            });
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+            element.setAttribute('download', `CryptoBank_Report_${new Date().getTime()}.csv`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+
+            alert(`â Report exported successfully!\nFile: CryptoBank_Report_${new Date().toLocaleDateString()}.csv`);
+        }
+
+        function addWalletForVIP(username) {
+            const users = DB.getUsers();
+            const user = users[username];
+            
+            if (!user) {
+                alert('User not found');
+                return;
+            }
+
+            const newVIP = parseInt(prompt(`Current VIP: ${user.vipLevel}\n\nEnter new VIP level (0-6):`, user.vipLevel));
+            
+            if (isNaN(newVIP) || newVIP < 0 || newVIP > 6) {
+                alert('Invalid VIP level');
+                return;
+            }
+
+            if (newVIP > user.vipLevel) {
+                const upgradeCost = VIP_LEVELS[newVIP].upgradePrice;
+                user.vipLevel = newVIP;
+                DB.saveUsers(users);
+
+                DB.addTransaction({
+                    username: username,
+                    type: 'vip_upgrade',
+                    description: `Admin Upgrade to VIP ${newVIP}`,
+                    amount: upgradeCost,
+                    status: 'Completed'
+                });
+
+                alert(`â ${user.username} upgraded to VIP ${newVIP}!\nUpgrade Cost: $${formatAmount(upgradeCost)}`);
+                loadAdminUsers();
+                loadAdminDashboard();
+            } else {
+                alert('VIP level can only be increased');
+            }
+        }
+
+        function switchScreen(screenId) {
+            hideLoader();
+            if (screenId === 'register-screen') {
+                screenId = 'login-screen'; // sign-up disabled in demo
+            }
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            if (screenId === 'register-screen') {
+                generateCaptcha();
+            }
+            if (screenId === 'dashboard-screen' && currentUser && !currentUser.isAdmin) {
+                loadUserDashboard();
+            }
+            if (screenId === 'transfer-screen' && currentUser && !currentUser.isAdmin) {
+                loadTransferScreen();
+            }
+            if (screenId === 'profile-screen' && currentUser) {
+                loadProfileScreen();
+            }
+            if (screenId === 'history-screen' && currentUser) {
+                loadTransactionHistory();
+            }
+            if (screenId === 'admin-screen' && currentUser?.isAdmin) {
+                loadAdminDashboard();
+            }
+            if (screenId === 'admin-users-screen' && currentUser?.isAdmin) {
+                loadAdminUsers();
+            }
+            if (screenId === 'admin-transactions-screen' && currentUser?.isAdmin) {
+                loadAdminTransactions();
+            }
+        }
+
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert active ${type}`;
+            setTimeout(() => {
+                alert.classList.remove('active');
+            }, 4000);
+        }
+
+        function loginUser() {
+            const username = document.getElementById('login-username').value.trim().toLowerCase();
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                showAlert('login-alert', 'Please enter username and password', 'error');
+                return;
+            }
+
+            const user = DB.getUserByUsername(username);
+            if (user && user.password === password) {
+                showLoader();
+                currentUser = user;
+                setTimeout(() => {
+                    hideLoader();
+                    if (user.isAdmin) {
+                        document.getElementById('dashboard-username').textContent = 'Admin Panel';
+                        loadAdminDashboard();
+                        switchScreen('admin-screen');
+                    } else {
+                        document.getElementById('dashboard-username').textContent = `@${user.username}`;
+                        loadUserDashboard();
+                        switchScreen('dashboard-screen');
+                    }
+                    document.getElementById('login-username').value = '';
+                    document.getElementById('login-password').value = '';
+                }, 600);
+            } else {
+                showAlert('login-alert', 'â Invalid username or password', 'error');
+            }
+        }
+
+        function registerUser() {
+            showAlert('login-alert', 'Sign-up is disabled in this demo.', 'error');
+            switchScreen('login-screen');
+            return;
+            const fullname = document.getElementById('reg-fullname').value.trim();
+            const username = document.getElementById('reg-username').value.trim().toLowerCase();
+            const email = document.getElementById('reg-email').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const address = document.getElementById('reg-address').value.trim();
+            const gender = document.getElementById('reg-gender').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            const captchaInput = document.getElementById('captcha-input').value.trim().toUpperCase();
+            const keyword = document.getElementById('reg-keyword').value.trim();
+
+            if (!fullname) {
+                showAlert('register-alert', 'â Please enter your full name', 'error');
+                return;
+            }
+
+            if (!username) {
+                showAlert('register-alert', 'â Please enter a username', 'error');
+                return;
+            }
+
+            if (!email) {
+                showAlert('register-alert', 'â Please enter your email', 'error');
+                return;
+            }
+
+            if (!phone) {
+                showAlert('register-alert', 'â Please enter your phone number', 'error');
+                return;
+            }
+
+            if (!address) {
+                showAlert('register-alert', 'â Please enter your address', 'error');
+                return;
+            }
+
+            if (!gender) {
+                showAlert('register-alert', 'â Please select your gender', 'error');
+                return;
+            }
+
+            if (!password) {
+                showAlert('register-alert', 'â Please enter a password', 'error');
+                return;
+            }
+
+            if (!confirmPassword) {
+                showAlert('register-alert', 'â Please confirm your password', 'error');
+                return;
+            }
+
+            if (username.length < 3) {
+                showAlert('register-alert', 'â Username must be at least 3 characters', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('register-alert', 'â Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('register-alert', 'â Passwords do not match', 'error');
+                return;
+            }
+
+            if (!captchaInput || captchaInput !== currentCaptcha) {
+                showAlert('register-alert', 'â CAPTCHA verification failed. Please try again.', 'error');
+                generateCaptcha();
+                return;
+            }
+
+            if (keyword !== GRANT_KEYWORD) {
+                showAlert('register-alert', `â Invalid grant keyword. Hint: It starts with GRANT`, 'error');
+                return;
+            }
+
+            showLoader();
+            setTimeout(() => {
+                try {
+                    const existingUsers = DB.getUsers();
+                    if (existingUsers[username]) {
+                        hideLoader();
+                        showAlert('register-alert', 'â Username already exists. Try another one.', 'error');
+                        return;
+                    }
+
+                    const user = DB.createUser(username, password, fullname, email, phone, address, gender);
+                    hideLoader();
+                    
+                    if (user) {
+                        showAlert('register-alert', 'â Account created! $500,000 grant (1 BTC + USDT) credited. Redirecting...', 'success');
+                        setTimeout(() => {
+                            document.getElementById('reg-fullname').value = '';
+                            document.getElementById('reg-username').value = '';
+                            document.getElementById('reg-email').value = '';
+                            document.getElementById('reg-phone').value = '';
+                            document.getElementById('reg-address').value = '';
+                            document.getElementById('reg-gender').value = '';
+                            document.getElementById('reg-password').value = '';
+                            document.getElementById('reg-confirm-password').value = '';
+                            document.getElementById('captcha-input').value = '';
+                            document.getElementById('reg-keyword').value = '';
+                            switchScreen('login-screen');
+                        }, 1500);
+                    } else {
+                        showAlert('register-alert', 'â Failed to create account. Try again.', 'error');
+                    }
+                } catch (error) {
+                    hideLoader();
+                    showAlert('register-alert', 'â Error: ' + error.message, 'error');
+                }
+            }, 800);
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('forgot-email').value.trim();
+            if (!email) {
+                showAlert('forgot-alert', 'Please enter your email', 'error');
+                return;
+            }
+            showAlert('forgot-alert', 'â Reset link sent to your email', 'success');
+            setTimeout(() => {
+                switchScreen('login-screen');
+                document.getElementById('forgot-email').value = '';
+            }, 2000);
+        }
+
+        function logoutUser() {
+            showLoader();
+            setTimeout(() => {
+                currentUser = null;
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                switchScreen('login-screen');
+            }, 600);
+        }
+
+        function formatAmount(amount) {
+            return Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calculatePortfolioValue(holdings) {
+            let total = 0;
+            CRYPTO_DATA.forEach(crypto => {
+                const amount = holdings[crypto.symbol] || 0;
+                total += amount * crypto.price;
+            });
+            return total;
+        }
+
+        function getHoldingsDisplay(holdings) {
+            let html = '';
+            CRYPTO_DATA.forEach(crypto => {
+                const amount = holdings[crypto.symbol] || 0;
+                if (amount > 0) {
+                    const value = amount * crypto.price;
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <strong style="color: var(--text-primary);">${crypto.symbol}</strong>
+                                <div style="font-size: 11px; color: var(--text-secondary);">${formatAmount(amount)} coins</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: var(--text-primary); font-weight: 700;">$${formatAmount(value)}</div>
+                                <div style="font-size: 11px; color: var(--text-secondary);">@ $${formatAmount(crypto.price)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            return html || '<p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 10px;">No holdings yet</p>';
+        }
+
+        function loadUserDashboard() {
+            if (!currentUser) return;
+
+            const user = currentUser;
+            
+            // Calculate total portfolio value (balance + holdings value)
+            const holdingsValue = calculatePortfolioValue(user.holdings || {});
+            const totalValue = user.balance + holdingsValue;
+            
+            document.getElementById('user-balance').textContent = '$' + formatAmount(totalValue);
+            
+            const vipBadge = document.getElementById('user-vip-badge');
+            if (user.vipLevel === 0) {
+                vipBadge.textContent = 'Standard Account';
+                vipBadge.style.background = 'linear-gradient(135deg, rgba(100, 116, 139, 0.2), rgba(139, 92, 246, 0.2))';
+                vipBadge.style.borderColor = '#64748b';
+                vipBadge.style.color = '#94a3b8';
+            } else {
+                const limit = VIP_LEVELS[user.vipLevel].limit;
+                vipBadge.textContent = `VIP ${user.vipLevel} - $${formatAmount(limit)}/day`;
+                vipBadge.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2))';
+                vipBadge.style.borderColor = '#f59e0b';
+                vipBadge.style.color = '#f59e0b';
+            }
+
+            loadMarketOverview();
+            loadRecentTransactions();
+            loadPortfolioHoldings();
+        }
+
+        function loadPortfolioHoldings() {
+            if (!currentUser) return;
+            
+            // Check if portfolio section exists
+            let portfolioSection = document.querySelector('[data-portfolio]');
+            if (!portfolioSection) {
+                portfolioSection = document.createElement('div');
+                portfolioSection.className = 'card';
+                portfolioSection.setAttribute('data-portfolio', 'true');
+                portfolioSection.innerHTML = `
+                    <div class="card-title">Your Holdings</div>
+                    <div id="portfolio-holdings" style="margin-top: 12px;"></div>
+                `;
+                document.querySelector('[data-market]')?.parentElement.insertBefore(portfolioSection, document.querySelector('[data-market]'));
+            }
+            
+            document.getElementById('portfolio-holdings').innerHTML = getHoldingsDisplay(currentUser.holdings || {});
+        }
+
+        function loadMarketOverview() {
+            const marketHTML = CRYPTO_DATA.map(crypto => `
+                <div class="crypto-item">
+                    <div class="crypto-left">
+                        <div class="crypto-icon ${crypto.class}">${crypto.icon}</div>
+                        <div class="crypto-info">
+                            <h4>${crypto.symbol}</h4>
+                            <p>${crypto.name}</p>
+                        </div>
+                    </div>
+                    <div class="crypto-right">
+                        <div class="crypto-price">$${formatAmount(crypto.price)}</div>
+                        <div class="crypto-change ${crypto.change < 0 ? 'negative' : ''}">
+                            ${crypto.change > 0 ? '+' : ''}${crypto.change}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('market-overview').innerHTML = marketHTML;
+        }
+
+        function loadRecentTransactions() {
+            const transactions = DB.getTransactions().filter(t => t.username === currentUser.username);
+            const recentTxns = transactions.slice(-5).reverse();
+
+            const container = document.getElementById('recent-transactions');
+            if (recentTxns.length === 0) {
+                container.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions yet</p>';
+                return;
+            }
+
+            container.innerHTML = recentTxns.map(txn => {
+                let icon = 'ð¤';
+                let bgColor = 'rgba(239, 68, 68, 0.15)';
+                let color = '#ef4444';
+
+                if (txn.type === 'deposit' || txn.type === 'grant' || txn.type === 'transfer_received') {
+                    icon = 'ð¥';
+                    bgColor = 'rgba(16, 185, 129, 0.15)';
+                    color = '#10b981';
+                }
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-left">
+                            <div class="transaction-icon" style="background: ${bgColor};">
+                                ${icon}
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${txn.description}</h4>
+                                <p>${new Date(txn.timestamp).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div class="transaction-right">
+                            <div class="transaction-amount" style="color: ${color};">
+                                ${txn.type === 'deposit' || txn.type === 'grant' || txn.type === 'transfer_received' ? '+' : '-'}$${formatAmount(txn.amount)}
+                            </div>
+                            <div class="transaction-status">${txn.status}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadTransferScreen() {
+            if (!currentUser) return;
+            updateTransferType();
+            const vipStatus = document.getElementById('transfer-vip-status');
+            if (currentUser.vipLevel === 0) {
+                vipStatus.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <span class="badge" onclick="showVIPModal()" style="cursor: pointer; background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ef4444;">â Not VIP - No Transfer Access</span>
+                        <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+                            â¢ Internal: VIP 1+ required<br>
+                            â¢ External Bank: VIP 3+ required<br>
+                            â¢ Crypto Wallet: VIP 3+ required
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top: 0;" onclick="showVIPModal()">Upgrade Now - Only $${formatAmount(VIP_LEVELS[1].upgradePrice)}</button>
+                    </div>
+                `;
+            } else {
+                const dailyLimit = VIP_LEVELS[currentUser.vipLevel].limit;
+                const nextLevel = currentUser.vipLevel + 1;
+                const nextLimit = nextLevel < VIP_LEVELS.length ? VIP_LEVELS[nextLevel].limit : null;
+                
+                let html = `
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <span class="badge vip" onclick="showVIPModal()" style="cursor: pointer;">â VIP ${currentUser.vipLevel} - $${formatAmount(dailyLimit)}/day limit</span>
+                        <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+                            â¢ Internal transfers: â Enabled<br>
+                            â¢ External bank transfers: ${currentUser.vipLevel >= 3 ? 'â Enabled' : 'â Requires VIP 3'}<br>
+                            â¢ Crypto wallet transfers: ${currentUser.vipLevel >= 3 ? 'â Enabled' : 'â Requires VIP 3'}
+                        </div>
+                `;
+                
+                if (nextLimit) {
+                    const nextPrice = VIP_LEVELS[nextLevel].upgradePrice;
+                    html += `<button class="btn btn-secondary" style="margin-top: 0;" onclick="showVIPModal()">Upgrade to VIP ${nextLevel} - $${formatAmount(nextPrice)}</button>`;
+                }
+                
+                html += '</div>';
+                vipStatus.innerHTML = html;
+            }
+        }
+
+        function updateTransferType() {
+            const type = document.getElementById('transfer-type').value;
+            document.getElementById('internal-transfer').classList.toggle('hidden', type !== 'internal');
+            document.getElementById('external-transfer').classList.toggle('hidden', type !== 'external');
+            document.getElementById('crypto-transfer').classList.toggle('hidden', type !== 'crypto');
+            document.getElementById('usd-amount-group').classList.toggle('hidden', type === 'crypto');
+            if (type === 'crypto') loadCryptoCoinOptions();
+        }
+
+        function loadCryptoCoinOptions() {
+            const select = document.getElementById('crypto-coin');
+            const holdings = (currentUser && currentUser.holdings) || {};
+            const owned = CRYPTO_DATA.filter(c => (holdings[c.symbol] || 0) > 0);
+            select.innerHTML = owned.length
+                ? owned.map(c => `<option value="${c.symbol}">${c.symbol} â ${formatAmount(holdings[c.symbol])} available</option>`).join('')
+                : '<option value="">No holdings available</option>';
+        }
+
+        function sendCryptoTransfer() {
+            const symbol = document.getElementById('crypto-coin').value;
+            const address = document.getElementById('crypto-address').value.trim();
+            const coinAmount = parseFloat(document.getElementById('crypto-amount').value);
+            const coin = CRYPTO_DATA.find(c => c.symbol === symbol);
+
+            if (currentUser.vipLevel < 3) {
+                showAlert('transfer-alert', `â Crypto transfers require VIP 3 or higher. You are VIP ${currentUser.vipLevel}. Upgrade to VIP 3 for $${formatAmount(VIP_LEVELS[3].upgradePrice)}`, 'error');
+                return;
+            }
+            if (!coin) {
+                showAlert('transfer-alert', 'â Please select a coin', 'error');
+                return;
+            }
+            if (!address || address.length < 15) {
+                showAlert('transfer-alert', 'â Please enter a valid wallet address', 'error');
+                return;
+            }
+            if (!coinAmount || coinAmount <= 0) {
+                showAlert('transfer-alert', 'â Please enter a valid coin amount', 'error');
+                return;
+            }
+
+            const available = (currentUser.holdings && currentUser.holdings[symbol]) || 0;
+            if (coinAmount > available) {
+                showAlert('transfer-alert', `â Insufficient ${symbol}. Available: ${formatAmount(available)}`, 'error');
+                return;
+            }
+
+            const usdValue = coinAmount * coin.price;
+            const vipLimit = VIP_LEVELS[currentUser.vipLevel].limit;
+            if (usdValue > vipLimit) {
+                showAlert('transfer-alert', `â Transfer limit exceeded. Your VIP ${currentUser.vipLevel} limit is $${formatAmount(vipLimit)}/day (this transfer is worth $${formatAmount(usdValue)})`, 'error');
+                return;
+            }
+
+            showLoader();
+            setTimeout(() => {
+                const users = DB.getUsers();
+                users[currentUser.username].holdings[symbol] = available - coinAmount;
+                DB.saveUsers(users);
+                currentUser.holdings[symbol] = available - coinAmount;
+
+                DB.addTransaction({
+                    username: currentUser.username,
+                    type: 'withdrawal',
+                    description: `Crypto Transfer: ${formatAmount(coinAmount)} ${symbol} to ${address.slice(0, 8)}...${address.slice(-4)}`,
+                    amount: usdValue,
+                    coin: symbol,
+                    coinAmount: coinAmount,
+                    walletAddress: address,
+                    status: 'Pending'
+                });
+
+                hideLoader();
+                showAlert('transfer-alert', 'â Crypto transfer submitted (Pending)', 'success');
+                setTimeout(() => {
+                    document.getElementById('crypto-amount').value = '';
+                    document.getElementById('crypto-address').value = '';
+                    switchScreen('dashboard-screen');
+                }, 1500);
+            }, 600);
+        }
+
+        function initiateTransfer() {
+            if (currentUser.vipLevel === 0) {
+                showAlert('transfer-alert', `â You must be VIP to initiate transfers. Upgrade to VIP 1 for $${formatAmount(VIP_LEVELS[1].upgradePrice)}`, 'error');
+                return;
+            }
+
+            const type = document.getElementById('transfer-type').value;
+            if (type === 'crypto') {
+                sendCryptoTransfer();
+                return;
+            }
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+            const vipLimit = VIP_LEVELS[currentUser.vipLevel].limit;
+
+            if (!amount || amount <= 0) {
+                showAlert('transfer-alert', 'Please enter a valid amount', 'error');
+                return;
+            }
+
+            if (amount > currentUser.balance) {
+                showAlert('transfer-alert', 'â Insufficient balance for this transfer', 'error');
+                return;
+            }
+
+            if (amount > vipLimit) {
+                showAlert('transfer-alert', `â Transfer limit exceeded. Your VIP ${currentUser.vipLevel} limit is $${formatAmount(vipLimit)}/day`, 'error');
+                return;
+            }
+
+            if (type === 'internal') {
+                const recipientUsername = document.getElementById('recipient-username').value.trim().toLowerCase();
+                if (!recipientUsername) {
+                    showAlert('transfer-alert', 'Please enter recipient username', 'error');
+                    return;
+                }
+
+                const recipient = DB.getUserByUsername(recipientUsername);
+                if (!recipient) {
+                    showAlert('transfer-alert', 'â Recipient not found', 'error');
+                    return;
+                }
+
+                if (recipient.vipLevel < 3) {
+                    showAlert('transfer-alert', 'â Recipient must be at least VIP 3', 'error');
+                    return;
+                }
+
+                showLoader();
+                setTimeout(() => {
+                    DB.updateUserBalance(currentUser.username, -amount);
+                    DB.updateUserBalance(recipientUsername, amount);
+
+                    DB.addTransaction({
+                        username: currentUser.username,
+                        type: 'transfer_sent',
+                        description: `Transfer to ${recipientUsername}`,
+                        amount: amount,
+                        recipient: recipientUsername,
+                        status: 'Completed'
+                    });
+
+                    DB.addTransaction({
+                        username: recipientUsername,
+                        type: 'transfer_received',
+                        description: `Transfer from ${currentUser.username}`,
+                        amount: amount,
+                        sender: currentUser.username,
+                        status: 'Completed'
+                    });
+
+                    currentUser.balance -= amount;
+                    hideLoader();
+                    showAlert('transfer-alert', 'â Transfer completed successfully!', 'success');
+                    setTimeout(() => {
+                        document.getElementById('transfer-amount').value = '';
+                        document.getElementById('recipient-username').value = '';
+                        switchScreen('dashboard-screen');
+                    }, 1500);
+                }, 600);
+            } else {
+                // External transfer requires VIP 3 minimum
+                if (currentUser.vipLevel < 3) {
+                    showAlert('transfer-alert', `â External transfers require VIP 3 or higher. You are VIP ${currentUser.vipLevel}. Upgrade to VIP 3 for $${formatAmount(VIP_LEVELS[3].upgradePrice)}`, 'error');
+                    return;
+                }
+
+                const bankAccount = document.getElementById('bank-account').value.trim();
+                const bankName = document.getElementById('bank-name').value.trim();
+
+                if (!bankAccount || !bankName) {
+                    showAlert('transfer-alert', 'Please enter bank details', 'error');
+                    return;
+                }
+
+                showLoader();
+                setTimeout(() => {
+                    DB.updateUserBalance(currentUser.username, -amount);
+                    DB.addTransaction({
+                        username: currentUser.username,
+                        type: 'withdrawal',
+                        description: `External Transfer to ${bankName}`,
+                        amount: amount,
+                        bankAccount: bankAccount,
+                        status: 'Pending'
+                    });
+
+                    currentUser.balance -= amount;
+                    hideLoader();
+                    showAlert('transfer-alert', 'â External transfer submitted (Pending - 1-3 business days)', 'success');
+                    setTimeout(() => {
+                        document.getElementById('transfer-amount').value = '';
+                        document.getElementById('bank-account').value = '';
+                        document.getElementById('bank-name').value = '';
+                        switchScreen('dashboard-screen');
+                    }, 1500);
+                }, 600);
+            }
+        }
+
+        function processDeposit() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const method = document.getElementById('deposit-method').value;
+            
+            if (!amount || amount <= 0) {
+                showAlert('deposit-alert', 'â Please enter a valid amount', 'error');
+                return;
+            }
+
+            if (!method) {
+                showAlert('deposit-alert', 'â Please select a deposit method', 'error');
+                return;
+            }
+
+            showLoader();
+            setTimeout(() => {
+                // Deposit is PENDING - funds don't arrive instantly
+                DB.addTransaction({
+                    username: currentUser.username,
+                    type: 'deposit',
+                    description: `Deposit via ${method}`,
+                    amount: amount,
+                    method: method,
+                    status: 'Pending'
+                });
+
+                hideLoader();
+                showAlert('deposit-alert', `â Deposit request submitted!\n\nAmount: $${formatAmount(amount)}\nMethod: ${method}\nStatus: Pending (1-3 business days)\n\nFunds will be credited once verified.`, 'success');
+                setTimeout(() => {
+                    document.getElementById('deposit-amount').value = '';
+                    switchScreen('dashboard-screen');
+                }, 2000);
+            }, 600);
+        }
+
+        function processWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            if (!amount || amount <= 0) {
+                showAlert('withdraw-alert', 'â Please enter a valid amount', 'error');
+                return;
+            }
+
+            if (amount < 100) {
+                showAlert('withdraw-alert', 'â Minimum withdrawal is $100', 'error');
+                return;
+            }
+
+            if (amount > currentUser.balance) {
+                showAlert('withdraw-alert', 'â Insufficient balance', 'error');
+                return;
+            }
+
+            showLoader();
+            setTimeout(() => {
+                DB.updateUserBalance(currentUser.username, -amount);
+                DB.addTransaction({
+                    username: currentUser.username,
+                    type: 'withdrawal',
+                    description: 'Withdrawal',
+                    amount: amount,
+                    status: 'Pending'
+                });
+
+                currentUser.balance -= amount;
+                hideLoader();
+                showAlert('withdraw-alert', `â Withdrawal request of $${formatAmount(amount)} submitted.`, 'success');
+                setTimeout(() => {
+                    document.getElementById('withdraw-amount').value = '';
+                    switchScreen('dashboard-screen');
+                }, 1500);
+            }, 600);
+        }
+
+        function loadProfileScreen() {
+            if (!currentUser) return;
+
+            const user = currentUser;
+            document.getElementById('profile-avatar').textContent = user.fullname.charAt(0).toUpperCase();
+            document.getElementById('profile-name').textContent = user.fullname;
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-username').textContent = user.username;
+            document.getElementById('profile-phone').textContent = user.phone;
+            document.getElementById('profile-address').textContent = user.address || '--';
+            
+            // Format gender display
+            let genderDisplay = '--';
+            if (user.gender) {
+                const genderMap = {
+                    'male': 'ð¨ Male',
+                    'female': 'ð© Female',
+                    'other': 'ð¤ Other',
+                    'prefer-not': 'Prefer not to say'
+                };
+                genderDisplay = genderMap[user.gender] || user.gender;
+            }
+            document.getElementById('profile-gender').textContent = genderDisplay;
+            
+            const vipBadge = document.getElementById('profile-vip');
+            if (user.vipLevel === 0) {
+                vipBadge.textContent = 'Standard';
+                vipBadge.style.background = 'linear-gradient(135deg, rgba(100, 116, 139, 0.2), rgba(139, 92, 246, 0.2))';
+                vipBadge.style.borderColor = '#64748b';
+                vipBadge.style.color = '#94a3b8';
+            } else {
+                const limit = VIP_LEVELS[user.vipLevel].limit;
+                vipBadge.textContent = `VIP ${user.vipLevel} â¢ $${formatAmount(limit)}/day`;
+            }
+            
+            // Calculate total portfolio value
+            const holdingsValue = calculatePortfolioValue(user.holdings || {});
+            const totalValue = user.balance + holdingsValue;
+            
+            document.getElementById('profile-balance').textContent = '$' + formatAmount(totalValue);
+            document.getElementById('profile-joined').textContent = new Date(user.joined).toLocaleDateString();
+            
+            // Show holdings if user has any
+            const hasHoldings = Object.values(user.holdings || {}).some(v => v > 0);
+            const holdingsCard = document.getElementById('profile-holdings-card');
+            if (hasHoldings) {
+                holdingsCard.style.display = 'block';
+                document.getElementById('profile-holdings-display').innerHTML = getHoldingsDisplay(user.holdings || {});
+            } else {
+                holdingsCard.style.display = 'none';
+            }
+        }
+
+        function loadTransactionHistory() {
+            if (!currentUser) return;
+
+            const transactions = DB.getTransactions().filter(t => t.username === currentUser.username);
+            const container = document.getElementById('transaction-history');
+
+            if (transactions.length === 0) {
+                container.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions yet</p>';
+                return;
+            }
+
+            container.innerHTML = transactions.reverse().map(txn => {
+                let icon = 'ð¤';
+                let bgColor = 'rgba(239, 68, 68, 0.15)';
+                let color = '#ef4444';
+
+                if (txn.type === 'deposit' || txn.type === 'grant' || txn.type === 'transfer_received') {
+                    icon = 'ð¥';
+                    bgColor = 'rgba(16, 185, 129, 0.15)';
+                    color = '#10b981';
+                }
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-left">
+                            <div class="transaction-icon" style="background: ${bgColor};">
+                                ${icon}
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${txn.description}</h4>
+                                <p>${new Date(txn.timestamp).toLocaleDateString()} ${new Date(txn.timestamp).toLocaleTimeString()}</p>
+                            </div>
+                        </div>
+                        <div class="transaction-right">
+                            <div class="transaction-amount" style="color: ${color};">
+                                ${txn.type === 'deposit' || txn.type === 'grant' || txn.type === 'transfer_received' ? '+' : '-'}$${formatAmount(txn.amount)}
+                            </div>
+                            <div class="transaction-status" style="color: ${txn.status === 'Completed' ? '#10b981' : '#f59e0b'};">${txn.status}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAdminDashboard() {
+            const users = DB.getUsers();
+            const transactions = DB.getTransactions();
+
+            const userList = Object.values(users);
+            const totalBalance = userList.reduce((sum, u) => sum + (u.balance || 0), 0);
+            const vipUsers = userList.filter(u => u.vipLevel > 0).length;
+
+            document.getElementById('admin-total-users').textContent = userList.length;
+            document.getElementById('admin-total-balance').textContent = '$' + formatAmount(totalBalance);
+            document.getElementById('admin-vip-users').textContent = vipUsers;
+            document.getElementById('admin-total-transactions').textContent = transactions.length;
+
+            const usersTable = document.getElementById('admin-users-table');
+            usersTable.innerHTML = userList.map(user => `
+                <tr>
+                    <td>${user.username}</td>
+                    <td>$${formatAmount(user.balance)}</td>
+                    <td>VIP ${user.vipLevel}</td>
+                    <td><span class="status-badge active">${user.status}</span></td>
+                </tr>
+            `).join('');
+
+            const txnList = document.getElementById('admin-transactions-list');
+            const recentTxns = transactions.slice(-5).reverse();
+            if (recentTxns.length === 0) {
+                txnList.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions</p>';
+                return;
+            }
+
+            txnList.innerHTML = recentTxns.map(txn => `
+                <div class="transaction-item">
+                    <div class="transaction-left">
+                        <div class="transaction-icon" style="background: ${txn.type === 'deposit' || txn.type === 'grant' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'};">
+                            ${txn.type === 'deposit' || txn.type === 'grant' ? 'ð¥' : 'ð¤'}
+                        </div>
+                        <div class="transaction-info">
+                            <h4>${txn.username}</h4>
+                            <p>${txn.description}</p>
+                        </div>
+                    </div>
+                    <div class="transaction-right">
+                        <div class="transaction-amount">$${formatAmount(txn.amount)}</div>
+                        <div class="transaction-status" style="color: ${txn.status === 'Completed' ? '#10b981' : '#f59e0b'};">${txn.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAdminUsers() {
+            const users = DB.getUsers();
+            const userList = Object.values(users).filter(u => !u.isAdmin);
+            const table = document.getElementById('admin-users-full-table');
+
+            table.innerHTML = userList.map(user => `
+                <tr>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.email}</td>
+                    <td>$${formatAmount(user.balance)}</td>
+                    <td><strong>VIP ${user.vipLevel}</strong></td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-secondary" style="font-size: 10px; padding: 6px 10px; margin: 0 2px;" onclick="openEditUserModal('${user.username}')">Edit</button>
+                        <button class="btn btn-secondary" style="font-size: 10px; padding: 6px 10px; margin: 0 2px;" onclick="addWalletForVIP('${user.username}')">VIP</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadAdminTransactions() {
+            const transactions = DB.getTransactions();
+            const container = document.getElementById('admin-all-transactions');
+
+            if (transactions.length === 0) {
+                container.innerHTML = '<p style="font-size: 12px; color: var(--text-secondary); text-align: center; padding: 20px 0;">No transactions</p>';
+                return;
+            }
+
+            container.innerHTML = transactions.reverse().map(txn => {
+                let actionBtn = '';
+                if (txn.status === 'Pending') {
+                    actionBtn = `<button class="btn btn-secondary" style="font-size: 11px; padding: 6px 10px; margin-top: 8px; width: 100%;" onclick="openApproveModal('${txn.id}')">Review & Approve</button>`;
+                }
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-left">
+                            <div class="transaction-icon" style="background: ${txn.type === 'deposit' || txn.type === 'grant' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'};">
+                                ${txn.type === 'deposit' || txn.type === 'grant' ? 'ð¥' : 'ð¤'}
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${txn.username}</h4>
+                                <p>${txn.description}<br><small>${new Date(txn.timestamp).toLocaleString()}</small></p>
+                                ${actionBtn}
+                            </div>
+                        </div>
+                        <div class="transaction-right">
+                            <div class="transaction-amount" style="font-weight: 800;">$${formatAmount(txn.amount)}</div>
+                            <div class="transaction-status" style="color: ${txn.status === 'Completed' ? '#10b981' : txn.status === 'Pending' ? '#f59e0b' : '#ef4444'}; margin-top: 3px;">${txn.status}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
